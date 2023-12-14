@@ -13,6 +13,12 @@
                 }">
             </div>
             <VSpacer></VSpacer>
+            <VBtn
+                size="x-small"
+                icon="mdi-github"
+                variant="text"
+                @click="openGithub">
+            </VBtn>
             <VDialog>
                 <template #activator="{ props }">
                     <VBtn
@@ -73,6 +79,11 @@ onMounted(() => {
 
 const close = () => {
     window.close()
+}
+
+const openGithub = () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('electron').shell.openExternal('https://github.com/KHC-ZhiHao/fold-chair-ptt')
 }
 
 </script>
