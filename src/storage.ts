@@ -1,7 +1,7 @@
 import { LocalStorage } from 'power-helper'
 
 export const useStorage = () => {
-    const service = 'float-ptt'
+    const service = 'Fold-Chair-PTT'
     const storage = new LocalStorage(service, {
         defaultColumns: {
             theme: () => 'light' as 'light' | 'dark',
