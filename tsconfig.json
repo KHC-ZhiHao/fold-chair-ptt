@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "useDefineForClassFields": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "strict": true,
+        "jsx": "preserve",
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "isolatedModules": false,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "types": [
+            "vuetify"
+        ],
+        "paths": {
+            "@/*": ["src/*"]
+        },
+        "skipLibCheck": true,
+        "outDir": "dist/electron"
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
