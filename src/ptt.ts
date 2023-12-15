@@ -1,8 +1,9 @@
 import { load, CheerioAPI } from 'cheerio'
-import { text } from 'power-helper'
+import { flow, text } from 'power-helper'
 import { makeHttpsRequest } from './request'
 
 type Push = {
+    uid: string
     tag: string
     date: string
     user: string
@@ -16,6 +17,7 @@ export const getFakeData = () => {
         url: 'https://www.ptt.cc/bbs/Stock/M.1689906475.A.C13.html',
         pushs: [
             {
+                uid: '1234',
                 tag: '噓',
                 user: '123',
                 date: '07-21',
@@ -49,6 +51,7 @@ const readPushs = ($: CheerioAPI): Push[] => {
         if (message) {
             const content = $$('.push-content').html()?.trim().slice(1).trim() ?? ''
             output.push({
+                uid: flow.createUuid(),
                 tag: $$('.push-tag').html()?.trim() ?? '',
                 user: $$('.push-userid').html()?.trim() ?? '',
                 date: date[0],

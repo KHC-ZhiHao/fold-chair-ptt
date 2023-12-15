@@ -56,7 +56,7 @@
                     </VDialog>
                 </VRow>
             </Teleport>
-            <div v-for="message of state.messages" :key="genKey(message)">
+            <div v-for="message of state.messages" :key="message.uid">
                 <Ani
                     class="w-100"
                     mode="fadeInUp"
@@ -134,9 +134,6 @@ const theme = useTheme()
 const store = useStore()
 const storage = useStorage()
 const maxMessage = 200
-const genKey = (push: typeof state.content.pushs[0]) => {
-    return `${push.tag} ${push.date} ${push.time} ${push.user} ${push.message}`
-}
 
 // =================
 //
