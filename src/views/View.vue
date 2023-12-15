@@ -278,8 +278,13 @@ onUnmounted(() => {
 const init = async() => {
     try {
         state.content = await readPTTArticle(url.value)
-        const pushs = await state.content.findNewest()
-        state.messages = [...state.content.pushs, ...pushs]
+        state.messages = [...state.content.pushs]
+        try {
+            const pushs = await state.content.findNewest()
+            state.messages.push(...pushs)
+        } catch (error) {
+            // nothing
+        }
         timer.play()
         let histories = storage.get('histories')
         histories = histories.filter(e => e.url !== url.value)
