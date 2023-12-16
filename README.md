@@ -14,7 +14,7 @@
 
 [MacOS]()
 
-[Windows]()
+[Windows](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
 
 ## 自建
 
