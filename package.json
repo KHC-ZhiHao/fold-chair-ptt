@@ -24,13 +24,13 @@
     ],
     "mac": {
       "icon": "./public/icons/mac.icns",
-      "artifactName": "fold-chair-ptt-app.${ext}",
+      "artifactName": "fold-chair-ptt.${ext}",
       "target": [
         "dmg"
       ]
     },
     "win": {
-      "icon": "./public/icons/win.png",
+      "icon": "./public/icons/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -39,7 +39,7 @@
           ]
         }
       ],
-      "artifactName": "fold-chair-ptt-app.${ext}"
+      "artifactName": "fold-chair-ptt.${ext}"
     },
     "nsis": {
       "oneClick": false,
