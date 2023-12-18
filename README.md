@@ -10,9 +10,13 @@
 
 好拉我承認是用來看 PTT 股版閒聊用的，不過某些時刻也可以用來看其他版的推文。
 
+## DEMO
+
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/QC73B3ZQmsg/0.jpg)](http://www.youtube.com/watch?v=QC73B3ZQmsg)
+
 ## 下載
 
-[MacOS]()
+[MacOS](https://drive.google.com/file/d/1jWpvlBCL5CQvN7FsDVorxIu3y5It93zK/view?usp=sharing)
 
 [Windows](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
 
