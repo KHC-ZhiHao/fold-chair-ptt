@@ -12,7 +12,9 @@
 
 ## DEMO
 
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/QC73B3ZQmsg/0.jpg)](http://www.youtube.com/watch?v=QC73B3ZQmsg)
+[![YT DEOM](http://img.youtube.com/vi/QC73B3ZQmsg/0.jpg)](http://www.youtube.com/watch?v=QC73B3ZQmsg)
+
+點擊上方圖片觀看 Youtube Demo
 
 ## 下載
 
@@ -29,3 +31,13 @@ npm install
 npm run build
 # 應該就能在 ./release 找到執行檔了
 ```
+
+## 工商時間
+
+想透過通勤時間學習與閱讀外文文章嗎？那就來下載 Mess 吧！
+
+[前往 Mess](https://mess.metalsheep.com/)
+
+瞭解更多
+
+[關於 MetalSheep](https://metalsheep.com/)
