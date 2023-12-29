@@ -25,7 +25,8 @@
                     placeholder="搜尋標題"
                     hide-details
                     density="comfortable"
-                    variant="outlined">
+                    variant="outlined"
+                    @keyup.enter="search">
                     <template v-if="state.search" #append-inner>
                         <VBtn
                             size="small"

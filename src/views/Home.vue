@@ -12,7 +12,8 @@
                 placeholder="請輸入 PTT 文章網址"
                 hide-details
                 density="comfortable"
-                variant="outlined">
+                variant="outlined"
+                @keyup.enter="submit">
                 <template v-if="state.articleUrl" #append-inner>
                     <VBtn
                         size="small"
@@ -107,6 +108,11 @@ const toCategory = (category: string) => {
 }
 
 const submit = () => {
+    const isUrl = /^https:\/\/www.ptt.cc\/bbs\/.+\/.+\.html$/.test(state.articleUrl)
+    if (!isUrl) {
+        alert('請輸入正確的 PTT 文章網址')
+        return
+    }
     router.push({
         name: 'View',
         query: {

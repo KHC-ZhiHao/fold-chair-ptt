@@ -55,7 +55,7 @@
     "axios": "^1.4.0",
     "cheerio": "^1.0.0-rc.12",
     "dayjs": "^1.11.9",
-    "power-helper": "^0.6.5",
+    "power-helper": "^0.6.6",
     "request": "^2.88.2",
     "util": "^0.12.5",
     "vue": "^3.3.4",

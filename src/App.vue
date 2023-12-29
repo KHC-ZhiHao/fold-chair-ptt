@@ -1,46 +1,47 @@
 <template>
     <v-app>
-        <VSystemBar style="-webkit-app-region: drag; cursor: move;">
-            <v-spacer></v-spacer>
-            <div class="text-center">折凳 PTT</div>
-            <v-spacer></v-spacer>
-        </VSystemBar>
-        <VAppBar density="compact" class="pl-2">
-            <div
-                id="header-title"
-                :style="{
-                    'width': '70%'
-                }">
-            </div>
-            <VSpacer></VSpacer>
-            <VBtn
-                size="x-small"
-                icon="mdi-github"
-                variant="text"
+        <VSystemBar class="px-4">
+            <div class="w-100 text-left" style="-webkit-app-region: drag; cursor: move;">折凳 PTT</div>
+            <VIcon
+                size="small"
+                class="mr-2"
+                @click="openMetalsheep">
+                mdi-sheep
+            </VIcon>
+            <VIcon
+                size="small"
+                class="mr-2"
                 @click="openGithub">
-            </VBtn>
+                mdi-github
+            </VIcon>
             <VDialog>
                 <template #activator="{ props }">
-                    <VBtn
+                    <VIcon
                         v-bind="props"
-                        class="mx-1"
-                        size="x-small"
-                        icon="mdi-cog"
-                        variant="text">
-                    </VBtn>
+                        size="small"
+                        class="mr-2">
+                        mdi-cog
+                    </VIcon>
                 </template>
                 <template #default>
-                    <VCard class="pa-4">
+                    <VCard class="pa-4" rounded="lg">
                         <Setting></Setting>
                     </VCard>
                 </template>
             </VDialog>
-            <VBtn
-                size="x-small"
-                icon="mdi-close"
-                variant="text"
+            <VIcon
+                size="small"
                 @click="close">
-            </VBtn>
+                mdi-close
+            </VIcon>
+        </VSystemBar>
+        <VAppBar density="compact" class="pl-2" elevation="1">
+            <div
+                id="header-title"
+                :style="{
+                    'width': '100%'
+                }">
+            </div>
         </VAppBar>
         <VMain style="height: 100vh;">
             <RouterView v-if="state.show"></RouterView>
@@ -84,6 +85,11 @@ const close = () => {
 const openGithub = () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('electron').shell.openExternal('https://github.com/KHC-ZhiHao/fold-chair-ptt')
+}
+
+const openMetalsheep = () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('electron').shell.openExternal('https://metalsheep.com')
 }
 
 </script>

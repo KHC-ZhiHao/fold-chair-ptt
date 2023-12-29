@@ -23,77 +23,74 @@
                         variant="text"
                         @click="cancel">
                     </VBtn>
-                    <VDialog>
-                        <template #activator="{ props }">
-                            <div
-                                v-ripple
-                                v-bind="props"
-                                class="text-body-2 pa-2 ellipsis"
-                                style="cursor: pointer;"
-                                color="primary">
-                                {{ state.content.attrs.title }}
-                            </div>
-                        </template>
-                        <template #default>
-                            <VCard>
-                                <VCardTitle>
-                                    {{ state.content.attrs.title }}
-                                </VCardTitle>
-                                <VCardSubtitle>
-                                    <VBtn
-                                        variant="text"
-                                        size="small"
-                                        icon="mdi-open-in-new"
-                                        @click="openToBrowser">
-                                    </VBtn>
-                                    {{ state.content.attrs.author }} {{ state.content.attrs.date }}
-                                </VCardSubtitle>
-                                <VCardText>
-                                    {{ state.content.content }}
-                                </VCardText>
-                            </VCard>
-                        </template>
-                    </VDialog>
+                    <div
+                        v-ripple
+                        class="text-body-2 pa-2 ellipsis"
+                        style="cursor: pointer;"
+                        color="primary"
+                        @click="openToBrowser">
+                        {{ state.content.attrs.title }}
+                    </div>
                 </VRow>
             </Teleport>
-            <div v-for="message of state.messages" :key="message.uid">
-                <Ani
-                    class="w-100"
-                    mode="fadeInUp"
-                    duration="super-faster">
-                    <v-card
-                        class="my-1 pa-1"
-                        elevation="0"
-                        :color="theme.global.name.value === 'dark' ? `rgba(0, 0, 0, ${store.opacity})` : `rgba(255, 255, 255, ${store.opacity})`">
-                        <v-row no-gutters class="flex-nowrap">
-                            <div>
-                                <span
-                                    :style="{
-                                        color: message.tag === '推' ? 'green' : message.tag === '噓' ? 'red' : 'gray'
-                                    }">
-                                    {{ message.tag }}
-                                </span>
-                                <span class="mx-2">{{ message.user }}:</span>
-                            </div>
-                            <VSpacer></VSpacer>
-                            <div>{{ message.date }} {{ message.time }}</div>
-                        </v-row>
-                        <img
-                            v-if="message.link && store.hideImage === false"
-                            class="py-1 d-block"
-                            style="width: 100%;"
-                            :src="message.link"
-                            @load="moveToBottom"
-                        >
-                        <div v-else class="py-1">{{ message.message }}</div>
-                    </v-card>
-                </Ani>
-            </div>
+            <VCard v-if="state.messages.length === 0" class="pa-6 my-1 text-center bg-white text-grey">現在沒有留言 :(</VCard>
+            <ContextMenu>
+                <template #menu>
+                    <VList lines="one">
+                        <VListItem prepend-icon="mdi-content-copy" @click="copy()">複製</VListItem>
+                        <VListItem v-if="!state.hideMessages.includes(state.nowFocusMessageId)" prepend-icon="mdi-eye-off-outline" @click="hide()">隱藏</VListItem>
+                        <VListItem v-else prepend-icon="mdi-eye-outline" @click="show()">顯示</VListItem>
+                    </VList>
+                </template>
+                <template #default="{ switchShow }">
+                    <div v-for="message of state.messages" :key="message.uid">
+                        <Ani
+                            class="w-100"
+                            mode="fadeInUp"
+                            duration="super-faster">
+                            <v-card
+                                class="my-1 pa-1"
+                                elevation="0"
+                                :color="theme.global.name.value === 'dark' ? `rgba(0, 0, 0, ${store.opacity})` : `rgba(255, 255, 255, ${store.opacity})`"
+                                @click.right="(event) => {
+                                    state.nowFocusMessageId = message.uid
+                                    switchShow(event)
+                                }">
+                                <!-- 作者 -->
+                                <v-row no-gutters class="flex-nowrap">
+                                    <div>
+                                        <span
+                                            :style="{
+                                                color: message.tag === '推' ? 'green' : message.tag === '噓' ? 'red' : 'gray'
+                                            }">
+                                            {{ message.tag }}
+                                        </span>
+                                        <span class="mx-2">{{ message.user }}:</span>
+                                    </div>
+                                    <VSpacer></VSpacer>
+                                    <div>{{ message.date }} {{ message.time }}</div>
+                                </v-row>
+                                <!-- 內容 -->
+                                <div v-if="state.hideMessages.includes(message.uid)" class="py-1 text-grey">
+                                    訊息已隱藏
+                                </div>
+                                <img
+                                    v-else-if="message.link && store.hideImage === false"
+                                    class="py-1 d-block"
+                                    style="width: 100%;"
+                                    :src="message.link"
+                                    @load="moveToBottom"
+                                >
+                                <pre v-else class="py-1">{{ message.message }}</pre>
+                            </v-card>
+                        </Ani>
+                    </div>
+                </template>
+            </ContextMenu>
             <VBtn
                 ref="reloadBtn"
                 block
                 size="small"
-                class="my-1"
                 variant="flat"
                 :style="{
                     opacity: store.opacity
@@ -119,11 +116,12 @@
 import Ani from '@/components/Ani.vue'
 import dayjs from 'dayjs'
 import router from '@/router'
+import ContextMenu from '@/components/ContextMenu.vue'
 import ToBottom from '@/components/ToBottom.vue'
 import { useStore } from '@/store'
 import { useTheme } from 'vuetify'
 import { useStorage } from '@/storage'
-import { VBtn, VCardSubtitle } from 'vuetify/components'
+import { VBtn } from 'vuetify/components'
 import { Timer, Schedule, calc } from 'power-helper'
 import { readPTTArticle, getFakeData } from '@/ptt'
 import { computed, ref, nextTick, onMounted, reactive, watch, onUnmounted } from 'vue'
@@ -168,8 +166,10 @@ const state = reactive({
     toBottomBtn: false,
     reloading: false,
     content: getFakeData(),
+    nowFocusMessageId: '',
     messageBuffers: [] as Push[],
-    messages: [] as Push[]
+    messages: [] as Push[],
+    hideMessages: [] as string[]
 })
 
 // =================
@@ -187,7 +187,7 @@ timer.on('next', async() => {
     state.refreshTime = Math.floor(time / 1000)
     if (time === 0) {
         timer.setTime(calc.toMs('s', store.refreshTime))
-        if (state.messageBuffers.length === 0) {
+        if (state.messageBuffers.length === 0 && state.toBottomBtn === false) {
             reload()
         }
     }
@@ -279,12 +279,6 @@ const init = async() => {
     try {
         state.content = await readPTTArticle(url.value)
         state.messages = [...state.content.pushs]
-        try {
-            const pushs = await state.content.findNewest()
-            state.messages.push(...pushs)
-        } catch (error) {
-            // nothing
-        }
         timer.play()
         let histories = storage.get('histories')
         histories = histories.filter(e => e.url !== url.value)
@@ -297,6 +291,7 @@ const init = async() => {
         nextTick(() => {
             state.inited = true
             setTimeout(() => {
+                reload(true)
                 observer.observe(reloadBtn.value?.$el)
                 moveToBottom()
             }, 150)
@@ -306,12 +301,16 @@ const init = async() => {
     }
 }
 
-const reload = async() => {
+const reload = async(quick = false) => {
     state.reloading = true
     timer.setTime(calc.toMs('s', store.refreshTime))
     try {
         const pushs = await state.content.findNewest()
-        state.messageBuffers.push(...pushs)
+        if (quick) {
+            state.messages.push(...pushs)
+        } else {
+            state.messageBuffers.push(...pushs)
+        }
     } catch (error) {
         state.content = await readPTTArticle(url.value)
     }
@@ -337,4 +336,53 @@ const openToBrowser = () => {
     shell.openExternal(url.value)
 }
 
+const hide = (messageId: string = state.nowFocusMessageId) => {
+    state.hideMessages.push(messageId)
+}
+
+const show = (messageId: string = state.nowFocusMessageId) => {
+    state.hideMessages = state.hideMessages.filter(e => e !== messageId)
+}
+
+const copy = (messageId: string = state.nowFocusMessageId) => {
+    const message = state.messages.find(e => e.uid === messageId)
+    if (message) {
+        const clipboard = navigator.clipboard
+        const isImg = message.link
+        // 用瀏覽器的剪貼簿，不要用electron得
+        if (isImg) {
+            const img = new Image()
+            img.src = message.link
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                canvas.width = img.width
+                canvas.height = img.height
+                const ctx = canvas.getContext('2d')
+                if (ctx) {
+                    ctx.drawImage(img, 0, 0)
+                    canvas.toBlob(blob => {
+                        if (blob) {
+                            clipboard.write([
+                                new ClipboardItem({
+                                    [blob.type]: blob
+                                })
+                            ])
+                        }
+                    })
+                }
+            }
+        } else {
+            const clipboard = navigator.clipboard
+            clipboard.writeText(message.message)
+        }
+    }
+}
+
 </script>
+
+<style scoped>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+</style>
