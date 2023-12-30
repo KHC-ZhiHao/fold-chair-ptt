@@ -42,7 +42,7 @@
                         <VListItem v-else prepend-icon="mdi-eye-outline" @click="show()">顯示</VListItem>
                     </VList>
                 </template>
-                <template #default="{ switchShow }">
+                <template #default="{ switchShow, isActived }">
                     <div v-for="message of state.messages" :key="message.uid">
                         <Ani
                             class="w-100"
@@ -80,6 +80,7 @@
                                     style="width: 100%;"
                                     :src="message.link"
                                     @load="moveToBottom"
+                                    @click="isActived ? () => null : viewImage(message.link)"
                                 >
                                 <pre v-else class="py-1">{{ message.message }}</pre>
                             </v-card>
@@ -349,7 +350,6 @@ const copy = (messageId: string = state.nowFocusMessageId) => {
     if (message) {
         const clipboard = navigator.clipboard
         const isImg = message.link
-        // 用瀏覽器的剪貼簿，不要用electron得
         if (isImg) {
             const img = new Image()
             img.src = message.link
@@ -376,6 +376,10 @@ const copy = (messageId: string = state.nowFocusMessageId) => {
             clipboard.writeText(message.message)
         }
     }
+}
+
+const viewImage = (src: string) => {
+    window.open(src, '_blank', 'title=image viewer')
 }
 
 </script>

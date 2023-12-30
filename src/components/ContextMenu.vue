@@ -13,11 +13,11 @@
             <slot name="menu"></slot>
         </div>
     </VMenu>
-    <slot :switch-show="switchShow"></slot>
+    <slot :switch-show="switchShow" :is-actived="isActived"></slot>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, reactive } from 'vue'
+import { computed, ref, nextTick, reactive } from 'vue'
 
 const menu = ref<HTMLElement>()
 
@@ -31,6 +31,13 @@ const state = reactive({
     y: 0,
     show: false
 })
+
+// =================
+//
+// computed
+//
+
+const isActived = computed(() => state.show)
 
 // =================
 //
