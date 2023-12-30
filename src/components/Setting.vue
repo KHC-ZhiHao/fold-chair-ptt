@@ -34,6 +34,8 @@
             class="my-4"
             hide-details
             label="訊息滾動速度">
+            <VRadio label="0秒" :value="0"></VRadio>
+            <VRadio label="0.5秒" :value="0.5"></VRadio>
             <VRadio label="1秒" :value="1"></VRadio>
             <VRadio label="2秒" :value="2"></VRadio>
             <VRadio label="3秒" :value="3"></VRadio>

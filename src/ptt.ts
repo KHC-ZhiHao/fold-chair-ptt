@@ -3,6 +3,7 @@ import { flow, text } from 'power-helper'
 import { makeHttpsRequest } from './request'
 
 type Push = {
+    ip: string
     uid: string
     tag: string
     date: string
@@ -17,6 +18,7 @@ export const getFakeData = () => {
         url: 'https://www.ptt.cc/bbs/Stock/M.1689906475.A.C13.html',
         pushs: [
             {
+                ip: '',
                 uid: '1234',
                 tag: '噓',
                 user: '123',
@@ -54,8 +56,9 @@ const readPushs = ($: CheerioAPI): Push[] => {
                 uid: flow.createUuid(),
                 tag: $$('.push-tag').html()?.trim() ?? '',
                 user: $$('.push-userid').html()?.trim() ?? '',
-                date: date[0],
-                time: date[1],
+                ip: date.length === 3 ? date[0] : '',
+                date: date.length === 3 ? date[1] : date[0],
+                time: date.length === 3 ? date[2] : date[1],
                 link: load(content)('a')?.text() ?? '',
                 message: content
             })

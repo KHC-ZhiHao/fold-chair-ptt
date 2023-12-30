@@ -194,7 +194,7 @@ timer.on('next', async() => {
     }
 })
 
-schedule.add('push', calc.toMs('s', store.messageSpeed), async() => {
+schedule.add('push', store.messageSpeed * 1000, async() => {
     if (state.messageBuffers.length > 0) {
         let message = state.messageBuffers.shift()
         if (message) {
