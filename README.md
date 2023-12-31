@@ -31,13 +31,3 @@ npm install
 npm run build
 # 應該就能在 ./release 找到執行檔了
 ```
-
-## 工商時間
-
-想透過通勤時間學習與閱讀外文文章嗎？那就來下載 Mess 吧！
-
-[前往 Mess](https://mess.metalsheep.com/)
-
-瞭解更多
-
-[關於 MetalSheep](https://metalsheep.com/)
