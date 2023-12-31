@@ -17,7 +17,7 @@ export const useStore = defineStore('main', () => {
     const state = reactive({
         opacity: storage.get('opacity'),
         messageSpeed: storage.get('messageSpeed'),
-        realtime: storage.get('realtime'),
+        refreshTime: storage.get('refreshTime'),
         hideImage: storage.get('hideImage'),
         categories: storage.get('categories'),
         articles: {} as Record<string, {
@@ -35,8 +35,8 @@ export const useStore = defineStore('main', () => {
         storage.set('hideImage', state.hideImage)
     }, { deep: true })
 
-    watch(() => state.realtime, () => {
-        storage.set('realtime', state.realtime)
+    watch(() => state.refreshTime, () => {
+        storage.set('refreshTime', state.refreshTime)
     }, { deep: true })
 
     watch(() => state.messageSpeed, () => {
@@ -93,7 +93,7 @@ export const useStore = defineStore('main', () => {
     })
 
     const refreshTime = computed(() => {
-        return state.realtime ? 7 : 60
+        return state.refreshTime
     })
 
     const messageSpeed = computed(() => {

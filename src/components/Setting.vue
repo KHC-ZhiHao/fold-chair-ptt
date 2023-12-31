@@ -1,5 +1,6 @@
 <template>
     <div>
+        <div class="text-h6">設定</div>
         <VSwitch
             v-model="state.theme"
             false-value="light"
@@ -14,12 +15,6 @@
             color="primary"
             label="隱藏圖片">
         </VSwitch>
-        <VSwitch
-            v-model="store.state.realtime"
-            hide-details
-            color="primary"
-            label="即時轉播">
-        </VSwitch>
         <v-slider
             v-model="store.state.opacity"
             hide-details
@@ -28,6 +23,18 @@
             :min="0"
             :max="100"
         ></v-slider>
+        <VRadioGroup
+            v-model="store.state.refreshTime"
+            color="primary"
+            class="my-4"
+            hide-details
+            label="刷新速度">
+            <VRadio label="180秒" :value="180"></VRadio>
+            <VRadio label="60秒" :value="60"></VRadio>
+            <VRadio label="30秒" :value="30"></VRadio>
+            <VRadio label="5秒" :value="5"></VRadio>
+            <VRadio label="1秒" :value="1"></VRadio>
+        </VRadioGroup>
         <VRadioGroup
             v-model="store.state.messageSpeed"
             color="primary"

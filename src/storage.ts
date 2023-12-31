@@ -9,7 +9,7 @@ export const useStorage = () => {
             hideImage: () => false,
             categories: () => [] as { title: string, value: string }[],
             messageSpeed: () => 2,
-            realtime: () => false,
+            refreshTime: () => 60,
             histories: () => {
                 return [] as {
                     title: string
