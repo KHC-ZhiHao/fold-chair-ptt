@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, reactive, watch } from 'vue'
 import { fetchPTTArticles } from '@/ptt'
 import { PromiseResponseType } from 'power-helper/types/pick'
+import { makeHttpsRequest } from '@/request'
 
 type Article = PromiseResponseType<typeof fetchPTTArticles>['articles'][0]
 
@@ -15,11 +16,15 @@ export const useStore = defineStore('main', () => {
     //
 
     const state = reactive({
+        version: '1.0.0',
+        newVersion: '1.0.0',
         opacity: storage.get('opacity'),
         messageSpeed: storage.get('messageSpeed'),
         refreshTime: storage.get('refreshTime'),
         hideImage: storage.get('hideImage'),
         categories: storage.get('categories'),
+        writelist: storage.get('whitelist'),
+        blacklist: storage.get('blacklist'),
         articles: {} as Record<string, {
             articles: Article[]
             next: string | null
@@ -27,8 +32,31 @@ export const useStore = defineStore('main', () => {
         }>
     })
 
+    // =================
+    //
+    // version
+    //
+
+    makeHttpsRequest('https://raw.githubusercontent.com/KHC-ZhiHao/fold-chair-ptt/main/package.json').then(raw => {
+        const data = JSON.parse(raw)
+        state.newVersion = data.version
+    })
+
+    // =================
+    //
+    // watch
+    //
+
     watch(() => state.opacity, () => {
         storage.set('opacity', state.opacity)
+    }, { deep: true })
+
+    watch(() => state.writelist, () => {
+        storage.set('whitelist', state.writelist)
+    }, { deep: true })
+
+    watch(() => state.blacklist, () => {
+        storage.set('blacklist', state.blacklist)
     }, { deep: true })
 
     watch(() => state.hideImage, () => {

@@ -11,6 +11,7 @@ type Push = {
     time: string
     link: string
     message: string
+    linkIsImage: boolean
 }
 
 export const getFakeData = () => {
@@ -25,6 +26,7 @@ export const getFakeData = () => {
                 date: '07-21',
                 time: '10:28',
                 link: '',
+                linkIsImage: false,
                 message: '賭失敗的你有看到嗎？'
             }
         ],
@@ -52,6 +54,8 @@ const readPushs = ($: CheerioAPI): Push[] => {
         let message = $$('.push-content').html()?.trim()
         if (message) {
             const content = $$('.push-content').html()?.trim().slice(1).trim() ?? ''
+            const link = load(content)('a')?.text() ?? ''
+            const linkIsImage = !!link.match(/.jpg|.png|.gif|.jpeg|.webp|.bmp|.svg/gi)
             output.push({
                 uid: flow.createUuid(),
                 tag: $$('.push-tag').html()?.trim() ?? '',
@@ -60,6 +64,7 @@ const readPushs = ($: CheerioAPI): Push[] => {
                 date: date.length === 3 ? date[1] : date[0],
                 time: date.length === 3 ? date[2] : date[1],
                 link: load(content)('a')?.text() ?? '',
+                linkIsImage,
                 message: content
             })
         }

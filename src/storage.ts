@@ -10,6 +10,8 @@ export const useStorage = () => {
             categories: () => [] as { title: string, value: string }[],
             messageSpeed: () => 2,
             refreshTime: () => 60,
+            whitelist: () => [] as string[],
+            blacklist: () => [] as string[],
             histories: () => {
                 return [] as {
                     title: string

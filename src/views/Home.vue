@@ -5,7 +5,7 @@
         </VDialog>
         <v-card rounded="0" class="pa-4 text-center" style="min-height: 100vh;">
             <Teleport to="#header-title">
-                <div class="text-body-2 mx-2 ellipsis" color="primary">讓我們繼續關注...</div>
+                <div class="text-body-2 mx-2 ellipsis" color="primary">歡迎回來 板凳 PTT v{{ store.state.version }}</div>
             </Teleport>
             <VTextField
                 v-model="state.articleUrl"

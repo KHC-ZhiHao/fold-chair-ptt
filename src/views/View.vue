@@ -51,7 +51,7 @@
                             <v-card
                                 class="my-1 pa-1"
                                 elevation="0"
-                                :color="theme.global.name.value === 'dark' ? `rgba(0, 0, 0, ${store.opacity})` : `rgba(255, 255, 255, ${store.opacity})`"
+                                :color="getMessageColor(message)"
                                 @click.right="(event) => {
                                     state.nowFocusMessageId = message.uid
                                     switchShow(event)
@@ -65,7 +65,7 @@
                                             }">
                                             {{ message.tag }}
                                         </span>
-                                        <span class="mx-2">{{ message.user }}:</span>
+                                        <span class="mx-2">{{ getMessageName(message) }}:</span>
                                     </div>
                                     <VSpacer></VSpacer>
                                     <div>{{ message.date }} {{ message.time }}</div>
@@ -74,15 +74,18 @@
                                 <div v-if="state.hideMessages.includes(message.uid)" class="py-1 text-grey">
                                     訊息已隱藏
                                 </div>
-                                <img
-                                    v-else-if="message.link && store.hideImage === false"
-                                    class="py-1 d-block"
-                                    style="width: 100%;"
-                                    :src="message.link"
-                                    @load="moveToBottom"
-                                    @click="isActived ? () => null : viewImage(message.link)"
-                                >
-                                <pre v-else class="py-1">{{ message.message }}</pre>
+                                <div v-else-if="message.linkIsImage && store.hideImage === false">
+                                    <img
+                                        class="py-1 d-block"
+                                        style="width: 100%;"
+                                        :src="message.link"
+                                        @load="moveToBottom(true)"
+                                        @error="message.linkIsImage = false"
+                                        @click="isActived ? () => null : viewImage(message.link)"
+                                    >
+                                    <div class="text-body-2 text-center text-grey">{{ message.link }}</div>
+                                </div>
+                                <pre v-else class="py-1">{{ message.link || message.message }}</pre>
                             </v-card>
                         </Ani>
                     </div>
@@ -96,12 +99,13 @@
                 :style="{
                     opacity: store.opacity
                 }"
-                :loading="state.reloading"
-                :disabled="!!state.messageBuffers.length"
-                @click="reload">
+                :disabled="!!state.messageBuffers.length || state.reloading || store.refreshTime === 1"
+                @click="reload()">
                 <div v-if="!!state.messageBuffers.length">
                     New Messages: {{ state.messageBuffers.length }}
                 </div>
+                <div v-else-if="store.refreshTime === 1">即時更新模式</div>
+                <div v-else-if="state.reloading">載入中...</div>
                 <div v-else>
                     <v-icon>mdi-refresh</v-icon>
                     <span class="text-body-2" style="vertical-align: middle;">
@@ -132,7 +136,7 @@ type Push = ReturnType<typeof getFakeData>['pushs'][0]
 const theme = useTheme()
 const store = useStore()
 const storage = useStorage()
-const maxMessage = 200
+const maxMessage = 250
 
 // =================
 //
@@ -194,16 +198,6 @@ timer.on('next', async() => {
     }
 })
 
-schedule.add('push', store.messageSpeed * 1000, async() => {
-    if (state.messageBuffers.length > 0) {
-        let message = state.messageBuffers.shift()
-        if (message) {
-            state.messages.push(message)
-            moveToBottom()
-        }
-    }
-})
-
 onUnmounted(() => {
     timer.close()
     schedule.close()
@@ -211,32 +205,23 @@ onUnmounted(() => {
 
 // =================
 //
-// messages
+// watch
 //
 
-watch(() => state.content, () => {
-    if (state.inited) {
-        const lastMessage = state.messages.at(-1) ?? {
-            date: '01/01',
-            time: '00:00',
-            tag: '',
-            user: ''
-        }
-        const newMessages = state.content.pushs.filter(e => {
-            const pushTime = dayjs(`${e.date} ${e.time}`, 'MM-DD HH:mm')
-            const lastMessageTime = dayjs(`${lastMessage.date} ${lastMessage.time}`, 'MM-DD HH:mm')
-            return pushTime.isAfter(lastMessageTime)
-        })
-        state.messageBuffers.push(...newMessages)
-    }
-}, {
-    deep: true
+watch(() => store.messageSpeed, () => {
+    reloadSchedule()
 })
 
 watch(() => state.messages, () => {
     if (state.messages.length > maxMessage) {
         state.messages.splice(0, state.messages.length - maxMessage)
     }
+    state.hideMessages = state.hideMessages.filter(e => state.messages.find(m => m.uid === e))
+    state.messages.forEach(e => {
+        if (store.state.blacklist.includes(e.user)) {
+            state.hideMessages.push(e.uid)
+        }
+    })
 }, {
     deep: true
 })
@@ -293,13 +278,47 @@ const init = async() => {
             state.inited = true
             setTimeout(() => {
                 reload(true)
+                reloadSchedule()
                 observer.observe(reloadBtn.value?.$el)
-                moveToBottom()
+                moveToBottom(true)
             }, 150)
         })
     } catch (error) {
         alert(error)
     }
+}
+
+const getMessageColor = (message: Push) => {
+    if (store.state.writelist.includes(message.user)) {
+        return theme.global.name.value === 'dark' ? `rgba(0, 0, 125, ${store.opacity})` : `rgba(240, 240, 255, ${store.opacity})`
+    }
+    return theme.global.name.value === 'dark' ? `rgba(0, 0, 0, ${store.opacity})` : `rgba(255, 255, 255, ${store.opacity})`
+}
+
+const getMessageName = (message: Push) => {
+    let name = message.user
+    if (store.state.writelist.includes(name)) {
+        name += ' (白名單)'
+    }
+    if (store.state.blacklist.includes(name)) {
+        name += ' (黑名單)'
+    }
+    return name
+}
+
+const reloadSchedule = () => {
+    if (schedule.has('push')) {
+        schedule.remove('push')
+    }
+    schedule.add('push', store.messageSpeed * 1000, async() => {
+        if (state.messageBuffers.length > 0) {
+            let message = state.messageBuffers.shift()
+            if (message) {
+                state.messages.push(message)
+                moveToBottom()
+            }
+        }
+    })
 }
 
 const reload = async(quick = false) => {
@@ -318,12 +337,18 @@ const reload = async(quick = false) => {
     state.reloading = false
 }
 
-const moveToBottom = () => {
+const moveToBottom = (quick = false) => {
     setTimeout(() => {
-        reloadBtn.value?.$el.scrollIntoView({
-            behavior: 'smooth',
-            block: 'end'
-        })
+        if (quick) {
+            reloadBtn.value?.$el.scrollIntoView({
+                block: 'end'
+            })
+        } else {
+            reloadBtn.value?.$el.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end'
+            })
+        }
     }, 150)
 }
 

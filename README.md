@@ -18,9 +18,9 @@
 
 ## 下載
 
-[MacOS](https://drive.google.com/file/d/1jWpvlBCL5CQvN7FsDVorxIu3y5It93zK/view?usp=sharing)
+[MacOS v0.0.1](https://drive.google.com/file/d/1jWpvlBCL5CQvN7FsDVorxIu3y5It93zK/view?usp=sharing)
 
-[Windows](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
+[Windows v0.0.1](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
 
 ## 自建
 
@@ -31,3 +31,17 @@ npm install
 npm run build
 # 應該就能在 ./release 找到執行檔了
 ```
+
+## Versions
+
+### 1.0.0
+
+* 可以過濾名單
+* 版本更新通知
+* 點入文章的時候不要出現滾動效果
+* 偵測圖片有沒有辦法顯示，沒有就顯示 url
+* 連結不要顯示 <a> 而是 url
+* 如果即時資料沒有工作，就重新去獲取即時資料的 token，而不是刷新整個頁面
+* 取消 Loading 動畫，顯得比較不煩躁
+* 1秒更新的時候不會反覆閃爍更新按鈕
+* 訊息捲動速度不再需要刷新文章
