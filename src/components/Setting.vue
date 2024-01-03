@@ -42,7 +42,7 @@
                 <VRadio label="60秒" :value="60"></VRadio>
                 <VRadio label="30秒" :value="30"></VRadio>
                 <VRadio label="5秒" :value="5"></VRadio>
-                <VRadio label="1秒" :value="1"></VRadio>
+                <VRadio label="即時更新" :value="1"></VRadio>
             </VRadioGroup>
             <VRadioGroup
                 v-model="store.state.messageSpeed"
