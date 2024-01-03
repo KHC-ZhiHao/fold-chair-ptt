@@ -20,7 +20,7 @@
 
 [MacOS v1.0.0](https://drive.google.com/file/d/1jWpvlBCL5CQvN7FsDVorxIu3y5It93zK/view?usp=sharing)
 
-[Windows v0.0.1](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
+[Windows v1.0.0](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
 
 ## 自建
 
