@@ -28,7 +28,7 @@
                         class="text-body-2 pa-2 ellipsis"
                         style="cursor: pointer;"
                         color="primary"
-                        @click="openToBrowser">
+                        @click="openToBrowser(url)">
                         {{ state.content.attrs.title }}
                     </div>
                 </VRow>
@@ -40,6 +40,7 @@
                         <VListItem prepend-icon="mdi-content-copy" @click="copy()">複製</VListItem>
                         <VListItem v-if="!state.hideMessages.includes(state.nowFocusMessageId)" prepend-icon="mdi-eye-off-outline" @click="hide()">隱藏</VListItem>
                         <VListItem v-else prepend-icon="mdi-eye-outline" @click="show()">顯示</VListItem>
+                        <VListItem v-if="focusMessage && focusMessage.link" prepend-icon="mdi-open-in-new" @click="openToBrowser(focusMessage.link)">另開視窗</VListItem>
                     </VList>
                 </template>
                 <template #default="{ switchShow, isActived }">
@@ -52,7 +53,7 @@
                                 class="my-1 pa-1"
                                 elevation="0"
                                 :color="getMessageColor(message)"
-                                @click.right="(event) => {
+                                @click.right="(event: any) => {
                                     state.nowFocusMessageId = message.uid
                                     switchShow(event)
                                 }">
@@ -80,12 +81,14 @@
                                         style="width: 100%;"
                                         :src="message.link"
                                         @load="moveToBottom(true)"
-                                        @error="message.linkIsImage = false"
                                         @click="isActived ? () => null : viewImage(message.link)"
                                     >
-                                    <div class="text-body-2 text-center text-grey">{{ message.link }}</div>
+                                    <div class="text-caption text-center text-grey">{{ message.link }}</div>
                                 </div>
-                                <pre v-else class="py-1">{{ message.link || message.message }}</pre>
+                                <div v-else-if="message.link">
+                                    <a :href="message.link" target="_blank"></a>
+                                </div>
+                                <pre v-else class="py-1">{{ message.message }}</pre>
                             </v-card>
                         </Ani>
                     </div>
@@ -130,13 +133,14 @@ import { VBtn } from 'vuetify/components'
 import { Timer, Schedule, calc } from 'power-helper'
 import { readPTTArticle, getFakeData } from '@/ptt'
 import { computed, ref, nextTick, onMounted, reactive, watch, onUnmounted } from 'vue'
+import { openToBrowser } from '@/utils'
 
 type Push = ReturnType<typeof getFakeData>['pushs'][0]
 
 const theme = useTheme()
 const store = useStore()
 const storage = useStorage()
-const maxMessage = 250
+const maxMessage = 500
 
 // =================
 //
@@ -212,20 +216,6 @@ watch(() => store.messageSpeed, () => {
     reloadSchedule()
 })
 
-watch(() => state.messages, () => {
-    if (state.messages.length > maxMessage) {
-        state.messages.splice(0, state.messages.length - maxMessage)
-    }
-    state.hideMessages = state.hideMessages.filter(e => state.messages.find(m => m.uid === e))
-    state.messages.forEach(e => {
-        if (store.state.blacklist.includes(e.user)) {
-            state.hideMessages.push(e.uid)
-        }
-    })
-}, {
-    deep: true
-})
-
 // =================
 //
 // computed
@@ -237,10 +227,11 @@ const url = computed<string>(() => {
 })
 
 const showToBottomBtn = computed(() => {
-    if (state.messageBuffers.length > 0) {
-        return false
-    }
     return state.toBottomBtn && state.messages.length > 10
+})
+
+const focusMessage = computed(() => {
+    return state.messages.find(e => e.uid === state.nowFocusMessageId)
 })
 
 // =================
@@ -264,7 +255,7 @@ onUnmounted(() => {
 const init = async() => {
     try {
         state.content = await readPTTArticle(url.value)
-        state.messages = [...state.content.pushs]
+        state.messages = state.content.pushs.slice(-maxMessage)
         timer.play()
         let histories = storage.get('histories')
         histories = histories.filter(e => e.url !== url.value)
@@ -274,6 +265,7 @@ const init = async() => {
             createdAt: dayjs().valueOf()
         })
         storage.set('histories', histories)
+        computedMessage()
         nextTick(() => {
             state.inited = true
             setTimeout(() => {
@@ -311,10 +303,14 @@ const reloadSchedule = () => {
         schedule.remove('push')
     }
     schedule.add('push', store.messageSpeed * 1000, async() => {
+        if (state.toBottomBtn) {
+            return
+        }
         if (state.messageBuffers.length > 0) {
             let message = state.messageBuffers.shift()
             if (message) {
                 state.messages.push(message)
+                computedMessage()
                 moveToBottom()
             }
         }
@@ -325,12 +321,15 @@ const reload = async(quick = false) => {
     state.reloading = true
     timer.setTime(calc.toMs('s', store.refreshTime))
     try {
-        const pushs = await state.content.findNewest()
+        let pushs = await state.content.findNewest()
         if (quick) {
-            state.messages.push(...pushs)
+            state.messages.push(...pushs.slice(-maxMessage))
         } else {
+            // 過濾重複的留言
+            pushs = pushs.filter(e => !state.messages.find(m => `${m.user}/${m.message}` === `${e.user}/${e.message}`))
             state.messageBuffers.push(...pushs)
         }
+        computedMessage()
     } catch (error) {
         state.content = await readPTTArticle(url.value)
     }
@@ -356,12 +355,6 @@ const cancel = () => {
     router.go(-1)
 }
 
-const openToBrowser = () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const shell = require('electron').shell
-    shell.openExternal(url.value)
-}
-
 const hide = (messageId: string = state.nowFocusMessageId) => {
     state.hideMessages.push(messageId)
 }
@@ -374,8 +367,7 @@ const copy = (messageId: string = state.nowFocusMessageId) => {
     const message = state.messages.find(e => e.uid === messageId)
     if (message) {
         const clipboard = navigator.clipboard
-        const isImg = message.link
-        if (isImg) {
+        if (message.linkIsImage) {
             const img = new Image()
             img.src = message.link
             img.onload = () => {
@@ -398,13 +390,25 @@ const copy = (messageId: string = state.nowFocusMessageId) => {
             }
         } else {
             const clipboard = navigator.clipboard
-            clipboard.writeText(message.message)
+            clipboard.writeText(`${message.user}: ${message.message}`)
         }
     }
 }
 
 const viewImage = (src: string) => {
     window.open(src, '_blank', 'title=image viewer')
+}
+
+const computedMessage = () => {
+    if (state.messages.length > maxMessage) {
+        state.messages.splice(0, state.messages.length - maxMessage)
+    }
+    state.hideMessages = state.hideMessages.filter(e => state.messages.find(m => m.uid === e))
+    state.messages.forEach(e => {
+        if (store.state.blacklist.includes(e.user)) {
+            state.hideMessages.push(e.uid)
+        }
+    })
 }
 
 </script>

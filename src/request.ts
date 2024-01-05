@@ -1,7 +1,7 @@
+const https = require('https')
+
 export function makeHttpsRequest(url: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const https = require('https')
         const options = {
             method: 'GET',
             headers: {

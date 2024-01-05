@@ -70,6 +70,7 @@
 import Setting from './components/Setting.vue'
 import { reactive, onMounted } from 'vue'
 import { useStore } from '@/store'
+import { openToBrowser } from '@/utils'
 
 // =================
 //
@@ -108,13 +109,11 @@ const close = () => {
 }
 
 const openGithub = () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('electron').shell.openExternal('https://github.com/KHC-ZhiHao/fold-chair-ptt')
+    openToBrowser('https://github.com/KHC-ZhiHao/fold-chair-ptt')
 }
 
 const openMetalsheep = () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('electron').shell.openExternal('https://metalsheep.com')
+    openToBrowser('https://metalsheep.com')
 }
 
 </script>
