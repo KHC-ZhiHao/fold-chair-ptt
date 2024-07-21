@@ -2,7 +2,7 @@ import { load, CheerioAPI } from 'cheerio'
 import { flow, text } from 'power-helper'
 import { makeHttpsRequest } from './request'
 
-type Push = {
+export type Push = {
     ip: string
     uid: string
     tag: string

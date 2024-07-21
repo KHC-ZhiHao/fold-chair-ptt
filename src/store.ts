@@ -1,11 +1,12 @@
+import dayjs from 'dayjs'
 import { useStorage } from './storage'
 import { defineStore } from 'pinia'
 import { computed, reactive, watch } from 'vue'
 import { fetchPTTArticles } from '@/ptt'
-import { PromiseResponseType } from 'power-helper/types/pick'
+import { TPick } from 'power-helper'
 import { makeHttpsRequest } from '@/request'
 
-type Article = PromiseResponseType<typeof fetchPTTArticles>['articles'][0]
+type Article = TPick.PromiseResponseType<typeof fetchPTTArticles>['articles'][0]
 
 export const useStore = defineStore('main', () => {
     const storage = useStorage()
@@ -25,6 +26,12 @@ export const useStore = defineStore('main', () => {
         categories: storage.get('categories'),
         writelist: storage.get('whitelist'),
         blacklist: storage.get('blacklist'),
+        keywords: storage.get('keywords'),
+        pageHistory: storage.get('pageHistory'),
+        webPages: [] as {
+            id: string
+            positionLeft: number
+        }[],
         articles: {} as Record<string, {
             articles: Article[]
             next: string | null
@@ -75,6 +82,14 @@ export const useStore = defineStore('main', () => {
         storage.set('categories', state.categories)
     }, { deep: true })
 
+    watch(() => state.keywords, () => {
+        storage.set('keywords', state.keywords)
+    }, { deep: true })
+
+    watch(() => state.pageHistory, () => {
+        storage.set('pageHistory', state.pageHistory)
+    }, { deep: true })
+
     // =================
     //
     // methods
@@ -107,6 +122,35 @@ export const useStore = defineStore('main', () => {
         }
     }
 
+    const newWebPage = () => {
+        const id = Math.random().toString(36).substring(7)
+        state.webPages.push({
+            id,
+            positionLeft: 0
+        })
+    }
+
+    const closeWebPage = (id: string) => {
+        state.webPages = state.webPages.filter(page => page.id !== id)
+    }
+
+    const addPageHistory = (params: {
+        url: string
+        title: string
+    }) => {
+        state.pageHistory.unshift({
+            ...params,
+            createdAt: dayjs().valueOf()
+        })
+        if (state.pageHistory.length >= 20) {
+            state.pageHistory.pop()
+        }
+    }
+
+    const removePageHistory = (index: number) => {
+        state.pageHistory.splice(index, 1)
+    }
+
     // =================
     //
     // getters
@@ -137,6 +181,10 @@ export const useStore = defineStore('main', () => {
         opacity,
         hideImage,
         categories,
+        newWebPage,
+        removePageHistory,
+        addPageHistory,
+        closeWebPage,
         refreshArticles,
         fetchArticles,
         refreshTime,

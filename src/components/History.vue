@@ -1,7 +1,11 @@
 <template>
     <div v-if="state.histories.length">
-        <VDivider class="mt-1 mb-2"></VDivider>
-        <VRow no-gutters align="center" justify="space-between">
+        <VRow
+            class="px-4 pt-2"
+            no-gutters
+            align="center"
+            style="font-weight: 900;"
+            justify="space-between">
             <div>歷史資料</div>
             <VBtn
                 size="small"

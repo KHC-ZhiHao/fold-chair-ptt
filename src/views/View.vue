@@ -36,12 +36,23 @@
             <VCard v-if="state.messages.length === 0" class="pa-6 my-1 text-center bg-white text-grey">現在沒有留言 :(</VCard>
             <ContextMenu>
                 <template #menu>
-                    <VList lines="one">
-                        <VListItem prepend-icon="mdi-content-copy" @click="copy()">複製</VListItem>
-                        <VListItem v-if="!state.hideMessages.includes(state.nowFocusMessageId)" prepend-icon="mdi-eye-off-outline" @click="hide()">隱藏</VListItem>
-                        <VListItem v-else prepend-icon="mdi-eye-outline" @click="show()">顯示</VListItem>
-                        <VListItem v-if="focusMessage && focusMessage.link" prepend-icon="mdi-open-in-new" @click="openToBrowser(focusMessage.link)">另開視窗</VListItem>
-                    </VList>
+                    <PushActions
+                        v-if="focusMessage"
+                        :push="focusMessage">
+                        <VListItem
+                            v-if="!state.hideMessages.includes(state.nowFocusMessageId)"
+                            prepend-icon="mdi-eye-off-outline"
+                            @click="hide()">
+                            隱藏
+                        </VListItem>
+                        <VListItem
+                            v-else
+                            prepend-icon="mdi-eye-outline"
+                            class="text-primary"
+                            @click="show()">
+                            顯示
+                        </VListItem>
+                    </PushActions>
                 </template>
                 <template #default="{ switchShow, isActived }">
                     <div v-for="message of state.messages" :key="message.uid">
@@ -88,7 +99,9 @@
                                 <div v-else-if="message.link">
                                     <a :href="message.link" target="_blank"></a>
                                 </div>
-                                <pre v-else class="py-1">{{ message.message }}</pre>
+                                <Mark v-else>
+                                    <pre class="py-1">{{ message.message.trim() }}</pre>
+                                </Mark>
                             </v-card>
                         </Ani>
                     </div>
@@ -124,6 +137,8 @@
 import Ani from '@/components/Ani.vue'
 import dayjs from 'dayjs'
 import router from '@/router'
+import Mark from '@/components/Mark.vue'
+import PushActions from '@/components/PushActions.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
 import ToBottom from '@/components/ToBottom.vue'
 import { useStore } from '@/store'
@@ -131,11 +146,9 @@ import { useTheme } from 'vuetify'
 import { useStorage } from '@/storage'
 import { VBtn } from 'vuetify/components'
 import { Timer, Schedule, calc } from 'power-helper'
-import { readPTTArticle, getFakeData } from '@/ptt'
+import { readPTTArticle, getFakeData, Push } from '@/ptt'
 import { computed, ref, nextTick, onMounted, reactive, watch, onUnmounted } from 'vue'
 import { openToBrowser } from '@/utils'
-
-type Push = ReturnType<typeof getFakeData>['pushs'][0]
 
 const theme = useTheme()
 const store = useStore()
@@ -214,6 +227,13 @@ onUnmounted(() => {
 
 watch(() => store.messageSpeed, () => {
     reloadSchedule()
+})
+
+watch([
+    () => store.state.writelist.length,
+    () => store.state.blacklist.length
+], () => {
+    computedMessage()
 })
 
 // =================
@@ -361,38 +381,6 @@ const hide = (messageId: string = state.nowFocusMessageId) => {
 
 const show = (messageId: string = state.nowFocusMessageId) => {
     state.hideMessages = state.hideMessages.filter(e => e !== messageId)
-}
-
-const copy = (messageId: string = state.nowFocusMessageId) => {
-    const message = state.messages.find(e => e.uid === messageId)
-    if (message) {
-        const clipboard = navigator.clipboard
-        if (message.linkIsImage) {
-            const img = new Image()
-            img.src = message.link
-            img.onload = () => {
-                const canvas = document.createElement('canvas')
-                canvas.width = img.width
-                canvas.height = img.height
-                const ctx = canvas.getContext('2d')
-                if (ctx) {
-                    ctx.drawImage(img, 0, 0)
-                    canvas.toBlob(blob => {
-                        if (blob) {
-                            clipboard.write([
-                                new ClipboardItem({
-                                    [blob.type]: blob
-                                })
-                            ])
-                        }
-                    })
-                }
-            }
-        } else {
-            const clipboard = navigator.clipboard
-            clipboard.writeText(`${message.user}: ${message.message}`)
-        }
-    }
 }
 
 const viewImage = (src: string) => {

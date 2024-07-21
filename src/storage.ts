@@ -10,12 +10,18 @@ export const useStorage = () => {
             categories: () => [] as { title: string, value: string }[],
             messageSpeed: () => 2,
             refreshTime: () => 60,
+            keywords: () => [] as string[],
             whitelist: () => [] as string[],
             blacklist: () => [] as string[],
+            pageHistory: () => [] as {
+                url: string
+                title: string
+                createdAt: number
+            }[],
             histories: () => {
                 return [] as {
-                    title: string
                     url: string
+                    title: string
                     createdAt: number
                 }[]
             }
