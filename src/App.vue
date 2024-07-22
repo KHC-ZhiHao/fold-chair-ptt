@@ -106,7 +106,10 @@
             :class="{
                 'no-display': state.hideContent
             }">
-            <RouterView v-if="state.show && store.state.webPages.length === 0"></RouterView>
+            <RouterView
+                v-if="state.show && store.state.webPages.length === 0"
+                :key="store.state.reloadKey.toString()">
+            </RouterView>
             <VRow
                 v-if="state.show && store.state.webPages.length !== 0"
                 no-gutters
@@ -116,7 +119,7 @@
                     :style="{
                         maxWidth: '360px'
                     }">
-                    <RouterView></RouterView>
+                    <RouterView :key="store.state.reloadKey.toString()"></RouterView>
                 </div>
                 <template v-for="page, index of store.state.webPages" :key="index">
                     <div class="page-wrapper w-100 h-100 overflow-auto">

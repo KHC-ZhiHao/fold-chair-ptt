@@ -31,6 +31,14 @@
                         @click="openToBrowser(url)">
                         {{ state.content.attrs.title }}
                     </div>
+                    <VSpacer></VSpacer>
+                    <VBtn
+                        size="x-small"
+                        icon="mdi-refresh"
+                        variant="text"
+                        class="mx-2"
+                        @click="refresh">
+                    </VBtn>
                 </VRow>
             </Teleport>
             <VCard v-if="state.messages.length === 0" class="pa-6 my-1 text-center bg-white text-grey">現在沒有留言 :(</VCard>
@@ -298,6 +306,10 @@ const init = async() => {
     } catch (error) {
         alert(error)
     }
+}
+
+const refresh = async() => {
+    store.state.reloadKey += 1
 }
 
 const getMessageColor = (message: Push) => {

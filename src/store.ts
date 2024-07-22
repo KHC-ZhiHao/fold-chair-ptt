@@ -17,6 +17,7 @@ export const useStore = defineStore('main', () => {
     //
 
     const state = reactive({
+        reloadKey: 0,
         version: '1.1.0',
         newVersion: '1.1.0',
         opacity: storage.get('opacity'),
