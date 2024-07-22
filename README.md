@@ -18,9 +18,9 @@
 
 ## 下載
 
-[MacOS v1.0.0](https://drive.google.com/file/d/1jWpvlBCL5CQvN7FsDVorxIu3y5It93zK/view?usp=sharing)
+[MacOS v1.1.0](https://drive.google.com/file/d/1ALKdURVLVqLnuAf8MgvujQKYiIKvEy-0/view?usp=sharing)
 
-[Windows v1.0.0](https://drive.google.com/file/d/1CoETduVhbDtcKNlWMOzxd-Mp2evzStR3/view?usp=sharing)
+[Windows v1.1.0](https://drive.google.com/file/d/1d1FBVYxIJY-dOo9F6uoe7Ekb-ybrFlXJ/view?usp=sharing)
 
 ## 自建
 
@@ -56,3 +56,6 @@ npm run build
 * 性能優化
 * 一鍵加載完成訊息
 * 升級 electron
+* 網頁瀏覽器
+* 可以在內文重整
+* 可以最小摺疊
