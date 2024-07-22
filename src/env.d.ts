@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-
+declare module 'mark.js'
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
   const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, any>

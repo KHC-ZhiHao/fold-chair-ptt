@@ -6,8 +6,8 @@
             grow
             color="primary"
             class="mb-1">
-            <VTab value="general">一般設定</VTab>
-            <VTab value="blacklist">黑白名單</VTab>
+            <VTab value="general">設定</VTab>
+            <VTab value="blacklist">名單</VTab>
         </VTabs>
         <div v-if="state.tab === 'general'">
             <VSwitch
@@ -59,6 +59,20 @@
             </VRadioGroup>
         </div>
         <div v-if="state.tab === 'blacklist'">
+            <div>關鍵字</div>
+            <div class="text-grey text-body-2">關鍵字的留言更顯眼</div>
+            <div>
+                <v-combobox
+                    v-model="store.state.keywords"
+                    class="my-4"
+                    chips
+                    clearable
+                    placeholder="輸入關鍵字 並按下 Enter"
+                    multiple
+                    hide-details
+                    variant="outlined">
+                </v-combobox>
+            </div>
             <div>白名單</div>
             <div class="text-grey text-body-2">白名單的留言更顯眼</div>
             <div>

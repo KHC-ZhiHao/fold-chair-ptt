@@ -98,6 +98,7 @@
 
 <script setup lang="ts">
 import router from '@/router'
+import { openToBrowser } from '@/utils'
 import { useStore } from '@/store'
 import { ref, computed, reactive, onMounted } from 'vue'
 
@@ -176,12 +177,6 @@ const toView = (url: string) => {
             url
         }
     })
-}
-
-const openToBrowser = (url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const shell = require('electron').shell
-    shell.openExternal(url)
 }
 
 const fetch = async(url: string) => {

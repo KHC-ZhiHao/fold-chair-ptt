@@ -28,19 +28,39 @@
                         class="text-body-2 pa-2 ellipsis"
                         style="cursor: pointer;"
                         color="primary"
-                        @click="openToBrowser">
+                        @click="openToBrowser(url)">
                         {{ state.content.attrs.title }}
                     </div>
+                    <VSpacer></VSpacer>
+                    <VBtn
+                        size="x-small"
+                        icon="mdi-refresh"
+                        variant="text"
+                        class="mx-2"
+                        @click="refresh">
+                    </VBtn>
                 </VRow>
             </Teleport>
             <VCard v-if="state.messages.length === 0" class="pa-6 my-1 text-center bg-white text-grey">現在沒有留言 :(</VCard>
             <ContextMenu>
                 <template #menu>
-                    <VList lines="one">
-                        <VListItem prepend-icon="mdi-content-copy" @click="copy()">複製</VListItem>
-                        <VListItem v-if="!state.hideMessages.includes(state.nowFocusMessageId)" prepend-icon="mdi-eye-off-outline" @click="hide()">隱藏</VListItem>
-                        <VListItem v-else prepend-icon="mdi-eye-outline" @click="show()">顯示</VListItem>
-                    </VList>
+                    <PushActions
+                        v-if="focusMessage"
+                        :push="focusMessage">
+                        <VListItem
+                            v-if="!state.hideMessages.includes(state.nowFocusMessageId)"
+                            prepend-icon="mdi-eye-off-outline"
+                            @click="hide()">
+                            隱藏
+                        </VListItem>
+                        <VListItem
+                            v-else
+                            prepend-icon="mdi-eye-outline"
+                            class="text-primary"
+                            @click="show()">
+                            顯示
+                        </VListItem>
+                    </PushActions>
                 </template>
                 <template #default="{ switchShow, isActived }">
                     <div v-for="message of state.messages" :key="message.uid">
@@ -52,7 +72,7 @@
                                 class="my-1 pa-1"
                                 elevation="0"
                                 :color="getMessageColor(message)"
-                                @click.right="(event) => {
+                                @click.right="(event: any) => {
                                     state.nowFocusMessageId = message.uid
                                     switchShow(event)
                                 }">
@@ -80,12 +100,16 @@
                                         style="width: 100%;"
                                         :src="message.link"
                                         @load="moveToBottom(true)"
-                                        @error="message.linkIsImage = false"
                                         @click="isActived ? () => null : viewImage(message.link)"
                                     >
-                                    <div class="text-body-2 text-center text-grey">{{ message.link }}</div>
+                                    <div class="text-caption text-center text-grey">{{ message.link }}</div>
                                 </div>
-                                <pre v-else class="py-1">{{ message.link || message.message }}</pre>
+                                <div v-else-if="message.link">
+                                    <a :href="message.link" target="_blank"></a>
+                                </div>
+                                <Mark v-else>
+                                    <pre class="py-1">{{ message.message.trim() }}</pre>
+                                </Mark>
                             </v-card>
                         </Ani>
                     </div>
@@ -121,6 +145,8 @@
 import Ani from '@/components/Ani.vue'
 import dayjs from 'dayjs'
 import router from '@/router'
+import Mark from '@/components/Mark.vue'
+import PushActions from '@/components/PushActions.vue'
 import ContextMenu from '@/components/ContextMenu.vue'
 import ToBottom from '@/components/ToBottom.vue'
 import { useStore } from '@/store'
@@ -128,15 +154,14 @@ import { useTheme } from 'vuetify'
 import { useStorage } from '@/storage'
 import { VBtn } from 'vuetify/components'
 import { Timer, Schedule, calc } from 'power-helper'
-import { readPTTArticle, getFakeData } from '@/ptt'
+import { readPTTArticle, getFakeData, Push } from '@/ptt'
 import { computed, ref, nextTick, onMounted, reactive, watch, onUnmounted } from 'vue'
-
-type Push = ReturnType<typeof getFakeData>['pushs'][0]
+import { openToBrowser } from '@/utils'
 
 const theme = useTheme()
 const store = useStore()
 const storage = useStorage()
-const maxMessage = 250
+const maxMessage = 500
 
 // =================
 //
@@ -212,18 +237,11 @@ watch(() => store.messageSpeed, () => {
     reloadSchedule()
 })
 
-watch(() => state.messages, () => {
-    if (state.messages.length > maxMessage) {
-        state.messages.splice(0, state.messages.length - maxMessage)
-    }
-    state.hideMessages = state.hideMessages.filter(e => state.messages.find(m => m.uid === e))
-    state.messages.forEach(e => {
-        if (store.state.blacklist.includes(e.user)) {
-            state.hideMessages.push(e.uid)
-        }
-    })
-}, {
-    deep: true
+watch([
+    () => store.state.writelist.length,
+    () => store.state.blacklist.length
+], () => {
+    computedMessage()
 })
 
 // =================
@@ -237,10 +255,11 @@ const url = computed<string>(() => {
 })
 
 const showToBottomBtn = computed(() => {
-    if (state.messageBuffers.length > 0) {
-        return false
-    }
     return state.toBottomBtn && state.messages.length > 10
+})
+
+const focusMessage = computed(() => {
+    return state.messages.find(e => e.uid === state.nowFocusMessageId)
 })
 
 // =================
@@ -264,7 +283,7 @@ onUnmounted(() => {
 const init = async() => {
     try {
         state.content = await readPTTArticle(url.value)
-        state.messages = [...state.content.pushs]
+        state.messages = state.content.pushs.slice(-maxMessage)
         timer.play()
         let histories = storage.get('histories')
         histories = histories.filter(e => e.url !== url.value)
@@ -274,6 +293,7 @@ const init = async() => {
             createdAt: dayjs().valueOf()
         })
         storage.set('histories', histories)
+        computedMessage()
         nextTick(() => {
             state.inited = true
             setTimeout(() => {
@@ -286,6 +306,10 @@ const init = async() => {
     } catch (error) {
         alert(error)
     }
+}
+
+const refresh = async() => {
+    store.state.reloadKey += 1
 }
 
 const getMessageColor = (message: Push) => {
@@ -311,10 +335,14 @@ const reloadSchedule = () => {
         schedule.remove('push')
     }
     schedule.add('push', store.messageSpeed * 1000, async() => {
+        if (state.toBottomBtn) {
+            return
+        }
         if (state.messageBuffers.length > 0) {
             let message = state.messageBuffers.shift()
             if (message) {
                 state.messages.push(message)
+                computedMessage()
                 moveToBottom()
             }
         }
@@ -325,12 +353,15 @@ const reload = async(quick = false) => {
     state.reloading = true
     timer.setTime(calc.toMs('s', store.refreshTime))
     try {
-        const pushs = await state.content.findNewest()
+        let pushs = await state.content.findNewest()
         if (quick) {
-            state.messages.push(...pushs)
+            state.messages.push(...pushs.slice(-maxMessage))
         } else {
+            // 過濾重複的留言
+            pushs = pushs.filter(e => !state.messages.find(m => `${m.user}/${m.message}` === `${e.user}/${e.message}`))
             state.messageBuffers.push(...pushs)
         }
+        computedMessage()
     } catch (error) {
         state.content = await readPTTArticle(url.value)
     }
@@ -356,12 +387,6 @@ const cancel = () => {
     router.go(-1)
 }
 
-const openToBrowser = () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const shell = require('electron').shell
-    shell.openExternal(url.value)
-}
-
 const hide = (messageId: string = state.nowFocusMessageId) => {
     state.hideMessages.push(messageId)
 }
@@ -370,41 +395,20 @@ const show = (messageId: string = state.nowFocusMessageId) => {
     state.hideMessages = state.hideMessages.filter(e => e !== messageId)
 }
 
-const copy = (messageId: string = state.nowFocusMessageId) => {
-    const message = state.messages.find(e => e.uid === messageId)
-    if (message) {
-        const clipboard = navigator.clipboard
-        const isImg = message.link
-        if (isImg) {
-            const img = new Image()
-            img.src = message.link
-            img.onload = () => {
-                const canvas = document.createElement('canvas')
-                canvas.width = img.width
-                canvas.height = img.height
-                const ctx = canvas.getContext('2d')
-                if (ctx) {
-                    ctx.drawImage(img, 0, 0)
-                    canvas.toBlob(blob => {
-                        if (blob) {
-                            clipboard.write([
-                                new ClipboardItem({
-                                    [blob.type]: blob
-                                })
-                            ])
-                        }
-                    })
-                }
-            }
-        } else {
-            const clipboard = navigator.clipboard
-            clipboard.writeText(message.message)
-        }
-    }
-}
-
 const viewImage = (src: string) => {
     window.open(src, '_blank', 'title=image viewer')
+}
+
+const computedMessage = () => {
+    if (state.messages.length > maxMessage) {
+        state.messages.splice(0, state.messages.length - maxMessage)
+    }
+    state.hideMessages = state.hideMessages.filter(e => state.messages.find(m => m.uid === e))
+    state.messages.forEach(e => {
+        if (store.state.blacklist.includes(e.user)) {
+            state.hideMessages.push(e.uid)
+        }
+    })
 }
 
 </script>

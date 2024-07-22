@@ -2,7 +2,7 @@ import { load, CheerioAPI } from 'cheerio'
 import { flow, text } from 'power-helper'
 import { makeHttpsRequest } from './request'
 
-type Push = {
+export type Push = {
     ip: string
     uid: string
     tag: string
@@ -55,7 +55,7 @@ const readPushs = ($: CheerioAPI): Push[] => {
         if (message) {
             const content = $$('.push-content').html()?.trim().slice(1).trim() ?? ''
             const link = load(content)('a')?.text() ?? ''
-            const linkIsImage = !!link.match(/.jpg|.png|.gif|.jpeg|.webp|.bmp|.svg/gi)
+            const linkIsImage = !!link.match(/.jpg|.png|.gif|.jpeg|.webp|.bmp|.svg/gi) || !!link.match(/imgur.com/gi)
             output.push({
                 uid: flow.createUuid(),
                 tag: $$('.push-tag').html()?.trim() ?? '',

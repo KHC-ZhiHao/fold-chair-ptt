@@ -3,45 +3,48 @@
         <VDialog v-model="state.categoryDialog">
             <Categories @selected="addCategory"></Categories>
         </VDialog>
-        <v-card rounded="0" class="pa-4 text-center" style="min-height: 100vh;">
+        <v-card rounded="0" class="text-center" style="min-height: 100vh;">
             <Teleport to="#header-title">
                 <div class="text-body-2 mx-2 ellipsis" color="primary">歡迎回來 板凳 PTT v{{ store.state.version }}</div>
             </Teleport>
-            <VTextField
-                v-model="state.articleUrl"
-                placeholder="請輸入 PTT 文章網址"
-                hide-details
-                density="comfortable"
-                variant="outlined"
-                @keyup.enter="submit">
-                <template v-if="state.articleUrl" #append-inner>
-                    <VBtn
-                        size="small"
-                        class="px-0"
-                        color="primary"
-                        rounded="pill"
-                        @click="submit">
-                        <VIcon>mdi-magnify</VIcon>
-                    </VBtn>
-                </template>
-            </VTextField>
-            <VChipGroup class="mt-1">
-                <VChip
-                    v-for="category of state.categories" :key="category.value"
-                    @click="toCategory(category.value)">
-                    {{ category.title }}
-                </VChip>
-                <VChip
-                    v-for="category of store.categories" :key="category.value"
-                    closable
-                    @click="toCategory(category.value)"
-                    @click:close.stop="removeCategory(category.value)">
-                    {{ category.title }}
-                </VChip>
-                <VChip @click="showCategory">
-                    <VIcon>mdi-plus</VIcon>
-                </VChip>
-            </VChipGroup>
+            <div class="pa-4 pb-0">
+                <VTextField
+                    v-model="state.articleUrl"
+                    placeholder="請輸入 PTT 文章網址"
+                    hide-details
+                    density="comfortable"
+                    variant="outlined"
+                    @keyup.enter="submit">
+                    <template v-if="state.articleUrl" #append-inner>
+                        <VBtn
+                            size="small"
+                            class="px-0"
+                            color="primary"
+                            rounded="pill"
+                            @click="submit">
+                            <VIcon>mdi-magnify</VIcon>
+                        </VBtn>
+                    </template>
+                </VTextField>
+                <VChipGroup column class="mt-1">
+                    <VChip
+                        v-for="category of state.categories" :key="category.value"
+                        @click="toCategory(category.value)">
+                        {{ category.title }}
+                    </VChip>
+                    <VChip
+                        v-for="category of store.categories" :key="category.value"
+                        closable
+                        @click="toCategory(category.value)"
+                        @click:close.stop="removeCategory(category.value)">
+                        {{ category.title }}
+                    </VChip>
+                    <VChip @click="showCategory">
+                        <VIcon>mdi-plus</VIcon>
+                    </VChip>
+                </VChipGroup>
+            </div>
+            <VDivider class="mt-1"></VDivider>
             <History @selected="clickHistory"></History>
         </v-card>
     </div>

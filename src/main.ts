@@ -29,9 +29,17 @@ const vuetify = createVuetify({
     },
     theme: {
         defaultTheme: storage.get('theme'),
+        variations: {
+            colors: ['primary', 'secondary', 'metalsheep'],
+            lighten: 9,
+            darken: 9
+        },
         themes: {
             light: {
-                colors: {}
+                colors: {
+                    background: 'transparent',
+                    metalsheep: '#EE8269'
+                }
             }
         }
     }
