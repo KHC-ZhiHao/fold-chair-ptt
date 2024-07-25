@@ -18,14 +18,15 @@ export const useStore = defineStore('main', () => {
 
     const state = reactive({
         reloadKey: 0,
-        version: '1.1.0',
-        newVersion: '1.1.0',
+        version: '1.1.1',
+        newVersion: '1.1.1',
         opacity: storage.get('opacity'),
         messageSpeed: storage.get('messageSpeed'),
         refreshTime: storage.get('refreshTime'),
         hideImage: storage.get('hideImage'),
         categories: storage.get('categories'),
         writelist: storage.get('whitelist'),
+        pages: storage.get('pages'),
         blacklist: storage.get('blacklist'),
         keywords: storage.get('keywords'),
         pageHistory: storage.get('pageHistory'),
@@ -89,6 +90,10 @@ export const useStore = defineStore('main', () => {
 
     watch(() => state.pageHistory, () => {
         storage.set('pageHistory', state.pageHistory)
+    }, { deep: true })
+
+    watch(() => state.pages, () => {
+        storage.set('pages', state.pages)
     }, { deep: true })
 
     // =================

@@ -18,6 +18,10 @@ export const useStorage = () => {
                 title: string
                 createdAt: number
             }[],
+            pages: () => [] as {
+                url: string
+                title: string
+            }[],
             histories: () => {
                 return [] as {
                     url: string

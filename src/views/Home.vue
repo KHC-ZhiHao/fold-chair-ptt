@@ -1,6 +1,6 @@
 <template>
     <div class="h-100">
-        <VDialog v-model="state.categoryDialog">
+        <VDialog v-model="state.categoryDialog" max-width="320px">
             <Categories @selected="addCategory"></Categories>
         </VDialog>
         <v-card rounded="0" class="text-center" style="min-height: 100vh;">
@@ -12,6 +12,7 @@
                     v-model="state.articleUrl"
                     placeholder="請輸入 PTT 文章網址"
                     hide-details
+                    clearable
                     density="comfortable"
                     variant="outlined"
                     @keyup.enter="submit">

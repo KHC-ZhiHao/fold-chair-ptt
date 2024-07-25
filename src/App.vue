@@ -4,13 +4,21 @@
             <div class="w-100 text-left ellipsis" style="-webkit-app-region: drag; cursor: move;">折凳 PTT v{{ store.state.version }}</div>
             <VDialog v-if="store.state.newVersion !== store.state.version" max-width="260px">
                 <template #activator="context">
-                    <VIcon
-                        v-bind="context.props"
-                        size="small"
-                        class="mr-2"
-                        color="red">
-                        mdi-bell
-                    </VIcon>
+                    <VTooltip location="bottom">
+                        <template #activator="tooltipContext">
+                            <VIcon
+                                v-bind="{
+                                    ...context.props,
+                                    ...tooltipContext.props
+                                }"
+                                size="small"
+                                class="mr-2"
+                                color="red">
+                                mdi-bell
+                            </VIcon>
+                        </template>
+                        <template #default>新版本已推出！</template>
+                    </VTooltip>
                 </template>
                 <template #default>
                     <VCard class="pa-4">
@@ -21,12 +29,20 @@
             </VDialog>
             <VDialog max-width="260px">
                 <template #activator="{ props }">
-                    <VIcon
-                        v-bind="props"
-                        size="small"
-                        class="mr-2">
-                        mdi-sheep
-                    </VIcon>
+                    <VTooltip location="bottom">
+                        <template #activator="tooltipContext">
+                            <VIcon
+                                v-bind="{
+                                    ...props,
+                                    ...tooltipContext.props
+                                }"
+                                size="small"
+                                class="mr-2">
+                                mdi-sheep
+                            </VIcon>
+                        </template>
+                        <template #default>關於我們</template>
+                    </VTooltip>
                 </template>
                 <template #default>
                     <VCard class="pa-4 pt-2" rounded="lg">
@@ -54,26 +70,46 @@
                     </VCard>
                 </template>
             </VDialog>
-            <VIcon
-                size="small"
-                class="mr-2"
-                @click="state.hideContent = !state.hideContent">
-                {{ state.hideContent ? 'mdi-arrow-expand-vertical' : 'mdi-arrow-collapse-vertical' }}
-            </VIcon>
-            <VIcon
-                size="small"
-                class="mr-2"
-                @click="store.newWebPage">
-                mdi-view-split-vertical
-            </VIcon>
-            <VDialog max-width="480px">
+            <VTooltip location="bottom">
                 <template #activator="{ props }">
                     <VIcon
                         v-bind="props"
                         size="small"
-                        class="mr-2">
-                        mdi-cog
+                        class="mr-2"
+                        @click="state.hideContent = !state.hideContent">
+                        {{ state.hideContent ? 'mdi-arrow-expand-vertical' : 'mdi-arrow-collapse-vertical' }}
                     </VIcon>
+                </template>
+                <template #default>{{ state.hideContent ? '展開畫面' : '摺起畫面' }}</template>
+            </VTooltip>
+            <VTooltip location="bottom">
+                <template #activator="{ props }">
+                    <VIcon
+                        v-bind="props"
+                        size="small"
+                        class="mr-2"
+                        @click="store.newWebPage">
+                        mdi-view-split-vertical
+                    </VIcon>
+                </template>
+                <template #default>新增網頁瀏覽器</template>
+            </VTooltip>
+            <VDialog max-width="480px">
+                <template #activator="{ props }">
+                    <VTooltip location="bottom">
+                        <template #activator="tooltipContext">
+                            <VIcon
+                                v-bind="{
+                                    ...props,
+                                    ...tooltipContext.props
+                                }"
+                                size="small"
+                                class="mr-2">
+                                mdi-cog
+                            </VIcon>
+                        </template>
+                        <template #default>設定</template>
+                    </VTooltip>
                 </template>
                 <template #default>
                     <VCard class="pa-4 pt-2" rounded="lg">

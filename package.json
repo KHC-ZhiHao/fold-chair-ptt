@@ -1,7 +1,7 @@
 {
   "name": "fold-chair-ptt",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "khczhihao",
   "main": "dist/main.js",
   "scripts": {

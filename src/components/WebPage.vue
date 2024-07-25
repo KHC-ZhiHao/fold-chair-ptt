@@ -50,14 +50,64 @@
                     variant="outlined"
                     density="comfortable"
                     hide-details
-                    placeholder="填入網頁連結">
+                    clearable
+                    placeholder="網頁連結...">
+                    <template v-if="state.url" #append-inner>
+                        <VBtn
+                            size="small"
+                            class="px-0"
+                            color="primary"
+                            rounded="pill"
+                            @click="openUrl(state.url)">
+                            <VIcon>mdi-magnify</VIcon>
+                        </VBtn>
+                    </template>
                 </VTextField>
                 <VChipGroup column class="mt-1 mb-1">
                     <VChip
-                        v-for="category of state.categories" :key="category.value"
+                        v-for="category of state.categories"
+                        :key="category.value"
                         @click="openUrl(category.value)">
                         {{ category.title }}
                     </VChip>
+                    <VChip
+                        v-for="page, index of store.state.pages"
+                        :key="page.title"
+                        closable
+                        @click:close="removePage(index)"
+                        @click="openUrl(page.url)">
+                        {{ page.title }}
+                    </VChip>
+                    <VDialog max-width="320px">
+                        <template #activator="context">
+                            <VChip v-bind="context.props">
+                                <VIcon>mdi-plus</VIcon>
+                            </VChip>
+                        </template>
+                        <template #default="{ isActive }">
+                            <VCard class="pa-3">
+                                <VTextField
+                                    v-model="form.title"
+                                    variant="outlined"
+                                    label="名字">
+                                </VTextField>
+                                <VTextField
+                                    v-model="form.url"
+                                    variant="outlined"
+                                    label="網址">
+                                </VTextField>
+                                <VBtn
+                                    color="primary"
+                                    block
+                                    @click="() => {
+                                        addPage()
+                                        isActive.value = false
+                                    }">
+                                    新增頁面
+                                </VBtn>
+                            </VCard>
+                        </template>
+                    </VDialog>
                 </VChipGroup>
             </div>
             <VDivider></VDivider>
@@ -133,6 +183,11 @@ const webview = ref<Record<string, any> | null>()
 // state
 //
 
+const form = reactive({
+    url: '',
+    title: ''
+})
+
 const state = reactive({
     url: '',
     title: '',
@@ -141,6 +196,14 @@ const state = reactive({
         {
             title: 'Google',
             value: 'https://google.com'
+        },
+        {
+            title: 'PTT',
+            value: 'https://term.ptt.cc/'
+        },
+        {
+            title: 'PTT Web',
+            value: 'https://www.ptt.cc/bbs/index.html'
         },
         {
             title: 'DCard',
@@ -218,6 +281,21 @@ const refresh = () => {
     if (webview.value) {
         webview.value.reload()
     }
+}
+
+const addPage = () => {
+    if (form.url && form.title) {
+        store.state.pages.push({
+            url: form.url,
+            title: form.title
+        })
+    }
+    form.url = ''
+    form.title = ''
+}
+
+const removePage = (index: number) => {
+    store.state.pages.splice(index, 1)
 }
 
 </script>
