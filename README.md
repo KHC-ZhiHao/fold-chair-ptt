@@ -16,11 +16,15 @@
 
 點擊上方圖片觀看 Youtube Demo
 
+![Priview](./public/preview.png)
+
+你現在可以一邊看 PTT 一邊瀏覽網頁了。
+
 ## 下載
 
-[MacOS v1.1.0](https://drive.google.com/file/d/1ALKdURVLVqLnuAf8MgvujQKYiIKvEy-0/view?usp=sharing)
+[MacOS v1.1.1](https://drive.google.com/file/d/1pHk5acgy0tinDq8-ln367XqUnpzlupak/view?usp=sharing)
 
-[Windows v1.1.0](https://drive.google.com/file/d/1d1FBVYxIJY-dOo9F6uoe7Ekb-ybrFlXJ/view?usp=sharing)
+[Windows v1.1.1](https://drive.google.com/file/d/1x0j60TWcnemNWFvyVkvX1k04CifoMIRd/view?usp=sharing)
 
 ## 自建
 
@@ -34,7 +38,7 @@ npm run build
 
 ## Versions
 
-### 1.0.0
+### 1.0.x
 
 * 可以建立 白名單/黑名單
 * 版本更新通知
@@ -46,7 +50,7 @@ npm run build
 * 1秒更新的時候不會反覆閃爍更新按鈕
 * 訊息捲動速度不再需要刷新文章
 
-### 1.1.0
+### 1.1.x
 
 * 同樣的訊息不會再出現
 * Gif Copy
@@ -58,4 +62,4 @@ npm run build
 * 升級 electron
 * 網頁瀏覽器
 * 可以在內文重整
-* 可以最小摺疊
+* 可以摺疊
